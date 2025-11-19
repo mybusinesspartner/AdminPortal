@@ -21,6 +21,16 @@
   display: flex;
   align-items: center;
   gap: 16px;
+  position: relative;
+}
+
+.header-content h1 {
+  flex: 1;
+  text-align: center;
+}
+
+.logout-button {
+  margin-left: auto;
 }
 
 .back-button {
@@ -58,6 +68,43 @@
   background-clip: text;
   margin: 0;
   letter-spacing: -0.5px;
+}
+
+.logout-button {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(245, 101, 101, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logout-icon {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  transition: transform 0.3s ease-out;
+}
+
+.logout-button:hover {
+  background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 101, 101, 0.4);
+}
+
+.logout-button:hover .logout-icon {
+  transform: translateX(4px);
+}
+
+.logout-button:active {
+  transform: translateY(0);
 }
 
 .verification-main {

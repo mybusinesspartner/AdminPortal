@@ -99,5 +99,9 @@ export class DocumentVerificationComponent implements OnInit {
   goBack(): void {
     this.router.navigate(['/dashboard']);
   }
+
+  logout(): void {
+    this.authService.logout();
+  }
 }
 

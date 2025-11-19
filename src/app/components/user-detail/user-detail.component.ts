@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
 import { User } from '../../models/user.model';
 
@@ -20,6 +21,7 @@ export class UserDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private userService: UserService,
+    private authService: AuthService,
     private toastService: ToastService
   ) {}
 
@@ -106,6 +108,10 @@ export class UserDetailComponent implements OnInit {
   getBusinessTypeClass(): string {
     if (!this.user) return '';
     return this.user.businessType === 'Corporate Business' ? 'business-type corporate' : 'business-type local';
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }
 

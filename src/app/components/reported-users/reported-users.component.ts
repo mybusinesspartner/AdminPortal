@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReportedUserService } from '../../services/reported-user.service';
 import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
 import { ReportedUserSummary, ReportStatus, UserReport, ReportReason } from '../../models/reported-user.model';
 import { BusinessType } from '../../models/user.model';
@@ -38,6 +39,7 @@ export class ReportedUsersComponent implements OnInit, OnDestroy {
   constructor(
     private reportedUserService: ReportedUserService,
     private userService: UserService,
+    private authService: AuthService,
     private router: Router,
     private toastService: ToastService
   ) {}
@@ -270,6 +272,10 @@ export class ReportedUsersComponent implements OnInit, OnDestroy {
         this.toastService.error('Failed to delete user');
       }
     });
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }
 

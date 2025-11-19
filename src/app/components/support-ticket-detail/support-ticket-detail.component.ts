@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SupportTicketService } from '../../services/support-ticket.service';
+import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
 import { SupportTicket } from '../../models/support-ticket.model';
 
@@ -20,6 +21,7 @@ export class SupportTicketDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private ticketService: SupportTicketService,
+    private authService: AuthService,
     private toastService: ToastService
   ) {}
 
@@ -104,6 +106,10 @@ export class SupportTicketDetailComponent implements OnInit {
   getBusinessTypeBadgeClass(): string {
     if (!this.ticket) return '';
     return this.ticket.businessType === 'Corporate Business' ? 'business-type-corporate' : 'business-type-local';
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }
 
