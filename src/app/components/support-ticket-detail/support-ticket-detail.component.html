@@ -39,7 +39,11 @@
             </div>
             <div class="info-item">
               <label>Business Type</label>
-              <p>{{ ticket.businessType }}</p>
+              <p>
+                <span class="business-type-badge" [ngClass]="getBusinessTypeBadgeClass()">
+                  {{ ticket.businessType }}
+                </span>
+              </p>
             </div>
             <div class="info-item">
               <label>Created At</label>
@@ -67,7 +71,7 @@
         <h4>Update Status</h4>
         <div class="status-buttons">
           <button
-            class="status-button"
+            class="status-button open"
             [class.active]="ticket.status === 'open'"
             (click)="updateStatus('open')"
             [disabled]="isUpdatingStatus"
@@ -75,7 +79,7 @@
             Open
           </button>
           <button
-            class="status-button"
+            class="status-button in_progress"
             [class.active]="ticket.status === 'in_progress'"
             (click)="updateStatus('in_progress')"
             [disabled]="isUpdatingStatus"
@@ -83,7 +87,7 @@
             In Progress
           </button>
           <button
-            class="status-button"
+            class="status-button resolved"
             [class.active]="ticket.status === 'resolved'"
             (click)="updateStatus('resolved')"
             [disabled]="isUpdatingStatus"
@@ -91,7 +95,7 @@
             Resolved
           </button>
           <button
-            class="status-button"
+            class="status-button closed"
             [class.active]="ticket.status === 'closed'"
             (click)="updateStatus('closed')"
             [disabled]="isUpdatingStatus"

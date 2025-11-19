@@ -10,20 +10,30 @@
     <div class="tabs-container">
       <div class="tabs">
         <button
-          class="tab-button"
+          class="tab-button all"
           [class.active]="activeTab === 'all'"
           (click)="switchTab('all')"
         >
-          Reported Users
-          <span class="tab-count" *ngIf="summaries.length > 0">({{ summaries.length }})</span>
+          <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span>Reported Users</span>
+          <span class="tab-count" *ngIf="summaries.length > 0">{{ summaries.length }}</span>
         </button>
         <button
-          class="tab-button"
+          class="tab-button deleted"
           [class.active]="activeTab === 'deleted'"
           (click)="switchTab('deleted')"
         >
-          Deleted Users
-          <span class="tab-count" *ngIf="deletedSummaries.length > 0">({{ deletedSummaries.length }})</span>
+          <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          <span>Deleted Users</span>
+          <span class="tab-count" *ngIf="deletedSummaries.length > 0">{{ deletedSummaries.length }}</span>
         </button>
       </div>
     </div>
@@ -127,7 +137,11 @@
                 </svg>
                 Business Type
               </div>
-              <div class="info-value">{{ summary.user.businessType }}</div>
+              <div class="info-value business-type-badge" 
+                   [ngClass]="{'business-type-corporate': summary.user.businessType === 'Corporate Business', 
+                               'business-type-local': summary.user.businessType === 'Local Business'}">
+                {{ summary.user.businessType }}
+              </div>
             </div>
 
             <div class="info-item">
@@ -261,7 +275,14 @@
     <div class="modal-header">
       <div class="modal-title-section">
         <h2>All Reports for {{ selectedSummary.user.name }}</h2>
-        <p class="modal-subtitle">{{ selectedSummary.totalReports }} Total Report{{ selectedSummary.totalReports !== 1 ? 's' : '' }}</p>
+        <div class="modal-subtitle-section">
+          <p class="modal-subtitle">{{ selectedSummary.totalReports }} Total Report{{ selectedSummary.totalReports !== 1 ? 's' : '' }}</p>
+          <div class="modal-business-type business-type-badge" 
+               [ngClass]="{'business-type-corporate': selectedSummary.user.businessType === 'Corporate Business', 
+                           'business-type-local': selectedSummary.user.businessType === 'Local Business'}">
+            {{ selectedSummary.user.businessType }}
+          </div>
+        </div>
       </div>
       <button class="modal-close-button" (click)="closeModal()" aria-label="Close modal">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

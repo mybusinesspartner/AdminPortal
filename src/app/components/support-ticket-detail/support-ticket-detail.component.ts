@@ -100,5 +100,10 @@ export class SupportTicketDetailComponent implements OnInit {
     if (!this.ticket) return '';
     return this.ticket.businessType === 'Corporate Business' ? 'business-corporate' : 'business-local';
   }
+
+  getBusinessTypeBadgeClass(): string {
+    if (!this.ticket) return '';
+    return this.ticket.businessType === 'Corporate Business' ? 'business-type-corporate' : 'business-type-local';
+  }
 }
 

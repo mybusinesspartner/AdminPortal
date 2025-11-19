@@ -92,7 +92,15 @@ export class UserDetailComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/dashboard']);
+    // Navigate back to document verification page
+    // Preserve the active tab based on user status if available
+    if (this.user) {
+      const tab = this.user.status === 'pending' ? 'pending' : 
+                  this.user.status === 'approved' ? 'approved' : 'rejected';
+      this.router.navigate(['/document-verification'], { queryParams: { tab } });
+    } else {
+      this.router.navigate(['/document-verification']);
+    }
   }
 
   getBusinessTypeClass(): string {
