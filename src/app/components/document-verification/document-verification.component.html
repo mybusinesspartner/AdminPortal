@@ -1,0 +1,47 @@
+<div class="verification-container">
+  <header class="verification-header">
+    <div class="header-content">
+      <button class="back-button" (click)="goBack()">← Back to Dashboard</button>
+      <h1>Document Verification</h1>
+    </div>
+  </header>
+
+  <main class="verification-main">
+    <div class="tabs-container">
+      <div class="tabs">
+        <button
+          class="tab-button"
+          [class.active]="activeTab === 'pending'"
+          (click)="switchTab('pending')"
+        >
+          Pending
+          <span class="tab-count" *ngIf="pendingCount > 0">({{ pendingCount }})</span>
+        </button>
+        <button
+          class="tab-button"
+          [class.active]="activeTab === 'approved'"
+          (click)="switchTab('approved')"
+        >
+          Approved
+          <span class="tab-count" *ngIf="approvedCount > 0">({{ approvedCount }})</span>
+        </button>
+        <button
+          class="tab-button"
+          [class.active]="activeTab === 'rejected'"
+          (click)="switchTab('rejected')"
+        >
+          Rejected
+          <span class="tab-count" *ngIf="rejectedCount > 0">({{ rejectedCount }})</span>
+        </button>
+      </div>
+    </div>
+
+    <app-user-list
+      [users]="users"
+      [isLoading]="isLoading"
+      [readOnly]="activeTab !== 'pending'"
+      (viewUser)="viewUser($event)"
+    ></app-user-list>
+  </main>
+</div>
+

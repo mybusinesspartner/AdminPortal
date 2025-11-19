@@ -1,0 +1,28 @@
+<div class="document-viewer">
+  <!-- PDF Viewer -->
+  <div *ngIf="isPdf" class="pdf-viewer">
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading PDF...</p>
+    </div>
+    <div *ngIf="error" class="error-state">
+      <p>{{ error }}</p>
+    </div>
+    <div *ngIf="!isLoading && !error && pdfPages.length > 0" class="pdf-pages">
+      <div *ngFor="let page of pdfPages; let i = index" class="pdf-page-container">
+        <div class="page-number">Page {{ i + 1 }} of {{ pdfPages.length }}</div>
+        <img [src]="page" [alt]="'PDF Page ' + (i + 1)" class="pdf-page-image" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Viewer -->
+  <div *ngIf="!isPdf" class="document-container">
+    <img
+      [src]="documentUrl"
+      alt="Document"
+      class="document-image"
+    />
+  </div>
+</div>
+

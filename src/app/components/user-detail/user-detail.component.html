@@ -1,0 +1,106 @@
+<div class="user-detail-container">
+  <div class="detail-header">
+    <button class="back-button" (click)="goBack()">← Back to Dashboard</button>
+    <h1>User Verification Details</h1>
+  </div>
+
+  <div class="detail-content" *ngIf="!isLoading && user">
+    <div class="user-info-section">
+      <div class="info-card">
+        <h2>User Information</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Name</label>
+            <p>{{ user.name }}</p>
+          </div>
+          <div class="info-item">
+            <label>Email</label>
+            <p>{{ user.email }}</p>
+          </div>
+          <div class="info-item">
+            <label>Phone</label>
+            <p>{{ user.phone }}</p>
+          </div>
+          <div class="info-item">
+            <label>College Name</label>
+            <p>{{ user.collegeName }}</p>
+          </div>
+          <div class="info-item">
+            <label>Year of Pass Out</label>
+            <p>{{ user.yearOfPassout }}</p>
+          </div>
+          <div class="info-item">
+            <label>Business Type</label>
+            <p>
+              <span class="business-type" [ngClass]="getBusinessTypeClass()">
+                {{ user.businessType }}
+              </span>
+            </p>
+          </div>
+          <div class="info-item">
+            <label>Submitted At</label>
+            <p>{{ user.submittedAt | date:'medium' }}</p>
+          </div>
+          <div class="info-item">
+            <label>Status</label>
+            <p>
+              <span class="status-badge status-{{ user.status }}">
+                {{ user.status }}
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="document-section">
+      <div class="document-card">
+        <h2>Uploaded Document</h2>
+        <app-document-viewer [documentUrl]="user.documentUrl"></app-document-viewer>
+      </div>
+    </div>
+
+    <div class="action-section">
+      <div class="remarks-card">
+        <h2 *ngIf="!isReadOnly">Add Remarks</h2>
+        <h2 *ngIf="isReadOnly">Remarks</h2>
+        <textarea
+          [(ngModel)]="remarks"
+          [placeholder]="isReadOnly ? 'No remarks added' : 'Enter remarks (required for rejection)...'"
+          class="remarks-input"
+          [readonly]="isReadOnly"
+          rows="4"
+        ></textarea>
+      </div>
+
+      <div class="action-buttons" *ngIf="!isReadOnly">
+        <button
+          class="approve-button"
+          (click)="approve()"
+          [disabled]="isProcessing"
+        >
+          <span *ngIf="!isProcessing">Approve</span>
+          <span *ngIf="isProcessing">Processing...</span>
+        </button>
+        <button
+          class="reject-button"
+          (click)="reject()"
+          [disabled]="isProcessing"
+        >
+          <span *ngIf="!isProcessing">Reject</span>
+          <span *ngIf="isProcessing">Processing...</span>
+        </button>
+      </div>
+
+      <div class="read-only-notice" *ngIf="isReadOnly && user">
+        <p>This verification request has been {{ user.status }}. No further actions can be taken.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading user details...</p>
+  </div>
+</div>
+

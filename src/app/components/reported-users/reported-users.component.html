@@ -1,0 +1,435 @@
+<div class="reported-users-container">
+  <header class="reported-users-header">
+    <div class="header-content">
+      <button class="back-button" (click)="goBack()">← Back to Dashboard</button>
+      <h1>Reported Users</h1>
+    </div>
+  </header>
+
+  <main class="reported-users-main">
+    <div class="tabs-container">
+      <div class="tabs">
+        <button
+          class="tab-button"
+          [class.active]="activeTab === 'all'"
+          (click)="switchTab('all')"
+        >
+          Reported Users
+          <span class="tab-count" *ngIf="summaries.length > 0">({{ summaries.length }})</span>
+        </button>
+        <button
+          class="tab-button"
+          [class.active]="activeTab === 'deleted'"
+          (click)="switchTab('deleted')"
+        >
+          Deleted Users
+          <span class="tab-count" *ngIf="deletedSummaries.length > 0">({{ deletedSummaries.length }})</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="filters-section">
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="Search by user name, email, or reason..."
+          [(ngModel)]="searchTerm"
+          (input)="applyFilters()"
+          class="search-input"
+        />
+      </div>
+      <div class="filter-controls">
+        <div class="filter-group">
+          <label for="businessTypeFilter">Business Type:</label>
+          <select
+            id="businessTypeFilter"
+            [(ngModel)]="selectedBusinessType"
+            (change)="onBusinessTypeChange()"
+            class="filter-select"
+          >
+            <option value="all">All Business Types</option>
+            <option value="Corporate Business">Corporate Business</option>
+            <option value="Local Business">Local Business</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="reportTypeFilter">Report Type:</label>
+          <select
+            id="reportTypeFilter"
+            [(ngModel)]="selectedReportType"
+            (change)="onReportTypeChange()"
+            class="filter-select"
+          >
+            <option value="all">All Report Types</option>
+            <option value="Harassment">Harassment</option>
+            <option value="Fraud">Fraud</option>
+            <option value="Privacy Violation">Privacy Violation</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="summaries-list" *ngIf="!isLoading">
+      <div
+        *ngFor="let summary of paginatedSummaries"
+        class="summary-card horizontal-card"
+        [class.high-priority]="isHighPriority(summary)"
+        [class.deleted-user]="activeTab === 'deleted'"
+      >
+        <div class="card-header">
+          <div class="user-avatar">
+            <div class="avatar-circle">
+              {{ summary.user.name.charAt(0).toUpperCase() }}
+            </div>
+          </div>
+          <div class="user-header-info">
+            <h3 class="user-name">{{ summary.user.name }}</h3>
+            <div class="user-meta">
+              <span class="user-email">
+                <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+                {{ summary.user.email }}
+              </span>
+              <span class="user-phone">
+                <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+                {{ summary.user.phone }}
+              </span>
+            </div>
+          </div>
+          <div class="report-count-badge-wrapper">
+            <span class="report-count-badge" [class.high-count]="isHighPriority(summary)">
+              <svg class="badge-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10 9 9 9 8 9"/>
+              </svg>
+              {{ summary.totalReports }} Report{{ summary.totalReports !== 1 ? 's' : '' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-label">
+                <svg class="info-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                Business Type
+              </div>
+              <div class="info-value">{{ summary.user.businessType }}</div>
+            </div>
+
+            <div class="info-item">
+              <div class="info-label">
+                <svg class="info-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                Reported By
+              </div>
+              <div class="info-value">
+                <div class="reporter-name">{{ summary.lastReportedBy }}</div>
+                <div class="reporter-email">{{ summary.lastReportedByEmail }}</div>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <div class="info-label">
+                <svg class="info-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                Report Type
+              </div>
+              <div class="info-value report-type-badge">{{ summary.lastReportReason }}</div>
+            </div>
+
+            <div class="info-item info-item-full">
+              <div class="info-label">
+                <svg class="info-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+                Report Reason
+              </div>
+              <div class="info-value report-reason">{{ summary.lastReportDescription }}</div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <button class="action-button view-reports-button" (click)="viewReports(summary)">
+            <svg class="button-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+            View Reports
+          </button>
+        </div>
+      </div>
+
+      <div class="no-summaries" *ngIf="filteredSummaries.length === 0">
+        <p>No reported users found matching your criteria.</p>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="pagination-container" *ngIf="filteredSummaries.length > 0 && !isLoading">
+        <div class="pagination-info">
+          <span>
+            Showing {{ (currentPage - 1) * itemsPerPage + 1 }} -
+            {{ getMin(currentPage * itemsPerPage, filteredSummaries.length) }}
+            of {{ filteredSummaries.length }} users
+          </span>
+        </div>
+        <div class="pagination-controls-wrapper">
+          <div class="page-size-selector">
+            <label for="pageSize">Items per page:</label>
+            <select
+              id="pageSize"
+              [(ngModel)]="itemsPerPage"
+              (change)="onPageSizeChange()"
+              class="page-size-select"
+            >
+              <option *ngFor="let size of pageSizeOptions" [value]="size">
+                {{ size }}
+              </option>
+            </select>
+          </div>
+          <div class="pagination-controls">
+            <button
+              class="pagination-button"
+              [disabled]="currentPage === 1"
+              (click)="previousPage()"
+              aria-label="Previous page"
+            >
+              ‹ Previous
+            </button>
+
+            <div class="page-numbers">
+              <button
+                *ngFor="let page of getPageNumbers()"
+                class="page-number"
+                [class.active]="page === currentPage"
+                (click)="goToPage(page)"
+              >
+                {{ page }}
+              </button>
+            </div>
+
+            <button
+              class="pagination-button"
+              [disabled]="currentPage === totalPages"
+              (click)="nextPage()"
+              aria-label="Next page"
+            >
+              Next ›
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Loading reported users...</p>
+    </div>
+  </main>
+</div>
+
+<!-- Reports Modal -->
+<div class="modal-overlay" *ngIf="showModal && selectedSummary" (click)="onModalBackdropClick($event)">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title-section">
+        <h2>All Reports for {{ selectedSummary.user.name }}</h2>
+        <p class="modal-subtitle">{{ selectedSummary.totalReports }} Total Report{{ selectedSummary.totalReports !== 1 ? 's' : '' }}</p>
+      </div>
+      <button class="modal-close-button" (click)="closeModal()" aria-label="Close modal">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="reports-list">
+        <div
+          *ngFor="let report of getSortedReports(); let i = index"
+          class="report-item"
+          [class.high-priority-report]="i === 0"
+        >
+          <div class="report-header">
+            <div class="report-number">Report #{{ getSortedReports().length - i }}</div>
+          </div>
+
+          <div class="report-content">
+            <div class="report-detail-row">
+              <div class="report-detail-item">
+                <div class="report-detail-label">
+                  <svg class="report-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  </svg>
+                  Reported By
+                </div>
+                <div class="report-detail-value">
+                  <div class="reporter-name">{{ report.reportedBy }}</div>
+                  <div class="reporter-email">{{ report.reportedByEmail }}</div>
+                </div>
+              </div>
+
+              <div class="report-detail-item">
+                <div class="report-detail-label">
+                  <svg class="report-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                  Reported At
+                </div>
+                <div class="report-detail-value">{{ report.reportedAt | date:'MMM d, y h:mm a' }}</div>
+              </div>
+            </div>
+
+            <div class="report-detail-row">
+              <div class="report-detail-item">
+                <div class="report-detail-label">
+                  <svg class="report-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                  Report Type
+                </div>
+                <div class="report-detail-value report-type-value">{{ report.reason }}</div>
+              </div>
+            </div>
+
+            <div class="report-description-section">
+              <div class="report-detail-label">
+                <svg class="report-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+                Description
+              </div>
+              <div class="report-description">{{ report.description }}</div>
+            </div>
+
+            <div class="report-detail-row" *ngIf="report.resolvedAt">
+              <div class="report-detail-item">
+                <div class="report-detail-label">
+                  <svg class="report-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  Resolved At
+                </div>
+                <div class="report-detail-value">{{ report.resolvedAt | date:'MMM d, y h:mm a' }}</div>
+              </div>
+              <div class="report-detail-item" *ngIf="report.resolvedBy">
+                <div class="report-detail-label">
+                  <svg class="report-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                  </svg>
+                  Resolved By
+                </div>
+                <div class="report-detail-value">{{ report.resolvedBy }}</div>
+              </div>
+            </div>
+
+            <div class="report-resolution-notes" *ngIf="report.resolutionNotes">
+              <div class="report-detail-label">Resolution Notes</div>
+              <div class="resolution-notes-text">{{ report.resolutionNotes }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button 
+        class="modal-button delete-button" 
+        (click)="showDeleteDialog()"
+        *ngIf="activeTab !== 'deleted'"
+      >
+        <svg class="button-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+        </svg>
+        Delete User
+      </button>
+      <button class="modal-button primary-button" (click)="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Dialog -->
+<div class="confirmation-overlay" *ngIf="showDeleteConfirmation" (click)="cancelDelete()">
+  <div class="confirmation-dialog" (click)="$event.stopPropagation()">
+    <div class="confirmation-header">
+      <h3>Confirm Deletion</h3>
+      <button class="confirmation-close-button" (click)="cancelDelete()" aria-label="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="confirmation-body">
+      <div class="confirmation-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <p class="confirmation-message" *ngIf="selectedSummary">
+        Are you sure you want to delete <strong>{{ selectedSummary.user.name }}</strong>?
+      </p>
+      <p class="confirmation-warning">
+        This action cannot be undone. All user data and reports will be permanently deleted.
+      </p>
+    </div>
+    <div class="confirmation-footer">
+      <button 
+        class="confirmation-button cancel-button" 
+        (click)="cancelDelete()"
+        [disabled]="isDeleting"
+      >
+        Cancel
+      </button>
+      <button 
+        class="confirmation-button delete-confirm-button" 
+        (click)="confirmDelete()"
+        [disabled]="isDeleting"
+      >
+        <span *ngIf="!isDeleting">Delete</span>
+        <span *ngIf="isDeleting">Deleting...</span>
+      </button>
+    </div>
+  </div>
+</div>
+

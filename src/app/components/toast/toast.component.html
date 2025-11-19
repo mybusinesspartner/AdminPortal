@@ -1,0 +1,19 @@
+<div class="toast-container">
+  <div
+    *ngFor="let toast of toasts"
+    class="toast"
+    [ngClass]="'toast-' + toast.type"
+  >
+    <div class="toast-content">
+      <div class="toast-icon">
+        <span *ngIf="toast.type === 'success'">✓</span>
+        <span *ngIf="toast.type === 'error'">✕</span>
+        <span *ngIf="toast.type === 'warning'">⚠</span>
+        <span *ngIf="toast.type === 'info'">ℹ</span>
+      </div>
+      <span class="toast-message">{{ toast.message }}</span>
+      <button class="toast-close" (click)="removeToast(toast.id); $event.stopPropagation()" aria-label="Close">×</button>
+    </div>
+  </div>
+</div>
+

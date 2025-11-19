@@ -1,0 +1,130 @@
+<div class="user-list-container">
+  <div class="controls-section">
+    <div class="search-box">
+      <input
+        type="text"
+        placeholder="Search by name, email, or phone..."
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange()"
+        class="search-input"
+      />
+    </div>
+
+    <div class="filter-controls">
+      <div class="filter-group">
+        <label>Business Type:</label>
+        <select [(ngModel)]="selectedBusinessType" (change)="onBusinessTypeChange()" class="filter-select">
+          <option value="all">All Business Types</option>
+          <option value="Corporate Business">Corporate Business</option>
+          <option value="Local Business">Local Business</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-container" *ngIf="!isLoading">
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th (click)="onSortChange('name')" class="sortable">
+            Name {{ getSortIcon('name') }}
+          </th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Business Type</th>
+          <th (click)="onSortChange('date')" class="sortable">
+            Submitted {{ getSortIcon('date') }}
+          </th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of paginatedUsers" class="user-row">
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.phone }}</td>
+          <td>{{ user.businessType }}</td>
+          <td>{{ user.submittedAt | date:'short' }}</td>
+          <td>
+            <span class="status-badge status-{{ user.status }}">
+              {{ user.status }}
+            </span>
+          </td>
+          <td>
+            <button class="view-button" (click)="onViewUser(user.id)">
+              View Details
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="filteredUsers.length === 0">
+          <td colspan="7" class="no-results">
+            No users found matching your criteria.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination Controls -->
+    <div class="pagination-container" *ngIf="filteredUsers.length > 0 && !isLoading">
+      <div class="pagination-info">
+        <span>
+          Showing {{ (currentPage - 1) * itemsPerPage + 1 }} - 
+          {{ getMin(currentPage * itemsPerPage, filteredUsers.length) }} 
+          of {{ filteredUsers.length }} users
+        </span>
+      </div>
+      <div class="pagination-controls-wrapper">
+        <div class="page-size-selector">
+          <label for="pageSize">Items per page:</label>
+          <select 
+            id="pageSize"
+            [(ngModel)]="itemsPerPage" 
+            (change)="onPageSizeChange()"
+            class="page-size-select"
+          >
+            <option *ngFor="let size of pageSizeOptions" [value]="size">
+              {{ size }}
+            </option>
+          </select>
+        </div>
+        <div class="pagination-controls">
+        <button 
+          class="pagination-button"
+          [disabled]="currentPage === 1"
+          (click)="previousPage()"
+          aria-label="Previous page"
+        >
+          ‹ Previous
+        </button>
+        
+        <div class="page-numbers">
+          <button
+            *ngFor="let page of getPageNumbers()"
+            class="page-number"
+            [class.active]="page === currentPage"
+            (click)="goToPage(page)"
+          >
+            {{ page }}
+          </button>
+        </div>
+        
+        <button 
+          class="pagination-button"
+          [disabled]="currentPage === totalPages"
+          (click)="nextPage()"
+          aria-label="Next page"
+        >
+          Next ›
+        </button>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading users...</p>
+  </div>
+</div>
+

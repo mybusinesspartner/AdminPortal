@@ -1,0 +1,203 @@
+<div class="tickets-container">
+  <header class="tickets-header">
+    <div class="header-content">
+      <button class="back-button" (click)="goBack()">← Back to Dashboard</button>
+      <h1>Support Tickets</h1>
+    </div>
+  </header>
+
+  <main class="tickets-main">
+    <div class="tabs-container">
+      <div class="tabs">
+        <button
+          class="tab-button"
+          [class.active]="activeTab === 'all'"
+          (click)="switchTab('all')"
+        >
+          All
+          <span class="tab-count" *ngIf="counts.all > 0">({{ counts.all }})</span>
+        </button>
+        <button
+          class="tab-button"
+          [class.active]="activeTab === 'open'"
+          (click)="switchTab('open')"
+        >
+          Open
+          <span class="tab-count" *ngIf="counts.open > 0">({{ counts.open }})</span>
+        </button>
+        <button
+          class="tab-button"
+          [class.active]="activeTab === 'in_progress'"
+          (click)="switchTab('in_progress')"
+        >
+          In Progress
+          <span class="tab-count" *ngIf="counts.in_progress > 0">({{ counts.in_progress }})</span>
+        </button>
+        <button
+          class="tab-button"
+          [class.active]="activeTab === 'resolved'"
+          (click)="switchTab('resolved')"
+        >
+          Resolved
+          <span class="tab-count" *ngIf="counts.resolved > 0">({{ counts.resolved }})</span>
+        </button>
+        <button
+          class="tab-button"
+          [class.active]="activeTab === 'closed'"
+          (click)="switchTab('closed')"
+        >
+          Closed
+          <span class="tab-count" *ngIf="counts.closed > 0">({{ counts.closed }})</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="filters-section">
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="Search tickets by subject, description, user name, or email..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+          class="search-input"
+        />
+      </div>
+
+      <div class="filter-controls">
+        <div class="filter-group">
+          <label>Category:</label>
+          <select [(ngModel)]="selectedCategory" (change)="onCategoryChange()" class="filter-select">
+            <option value="all">All Categories</option>
+            <option value="Getting Started">Getting Started</option>
+            <option value="Billing and Subscription">Billing and Subscription</option>
+            <option value="Messaging and Communication">Messaging and Communication</option>
+            <option value="Privacy and Security">Privacy and Security</option>
+            <option value="Safety">Safety</option>
+            <option value="Success Stories and Testimonials">Success Stories and Testimonials</option>
+            <option value="Feedback and Suggestions">Feedback and Suggestions</option>
+            <option value="Forgot Password">Forgot Password</option>
+            <option value="Documentation Upload">Documentation Upload</option>
+            <option value="Technical Issue">Technical Issue</option>
+            <option value="Others">Others</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Business Type:</label>
+          <select [(ngModel)]="selectedBusinessType" (change)="onBusinessTypeChange()" class="filter-select">
+            <option value="all">All Business Types</option>
+            <option value="Corporate Business">Corporate Business</option>
+            <option value="Local Business">Local Business</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="tickets-list" *ngIf="!isLoading">
+      <div
+        *ngFor="let ticket of paginatedTickets"
+        class="ticket-card"
+        (click)="viewTicket(ticket.id)"
+      >
+        <div class="ticket-header">
+          <div class="ticket-id">#{{ ticket.id }}</div>
+          <div class="ticket-badges">
+            <span class="badge" [ngClass]="getStatusClass(ticket.status)">
+              {{ ticket.status.replace('_', ' ') }}
+            </span>
+            <span class="badge" [ngClass]="getCategoryClass(ticket.category)">
+              {{ ticket.category }}
+            </span>
+          </div>
+        </div>
+
+        <div class="ticket-content">
+          <h3 class="ticket-subject">{{ ticket.subject }}</h3>
+          <p class="ticket-description">{{ ticket.description }}</p>
+        </div>
+
+        <div class="ticket-footer">
+          <div class="ticket-user">
+            <span class="user-name">{{ ticket.userName }}</span>
+            <span class="user-email">{{ ticket.userEmail }}</span>
+          </div>
+          <div class="ticket-meta">
+            <span class="business-type" [ngClass]="getBusinessTypeBadgeClass(ticket.businessType)">
+              {{ ticket.businessType }}
+            </span>
+            <span class="ticket-date">{{ ticket.createdAt | date:'short' }}</span>
+            <span class="comment-count" *ngIf="ticket.comments && ticket.comments.length > 0">
+              {{ ticket.comments.length }} comment(s)
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="no-tickets" *ngIf="filteredTickets.length === 0">
+        <p>No tickets found matching your criteria.</p>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="pagination-container" *ngIf="filteredTickets.length > 0 && !isLoading">
+        <div class="pagination-info">
+          <span>
+            Showing {{ (currentPage - 1) * itemsPerPage + 1 }} -
+            {{ getMin(currentPage * itemsPerPage, filteredTickets.length) }}
+            of {{ filteredTickets.length }} tickets
+          </span>
+        </div>
+        <div class="pagination-controls-wrapper">
+          <div class="page-size-selector">
+            <label for="pageSize">Items per page:</label>
+            <select
+              id="pageSize"
+              [(ngModel)]="itemsPerPage"
+              (change)="onPageSizeChange()"
+              class="page-size-select"
+            >
+              <option *ngFor="let size of pageSizeOptions" [value]="size">
+                {{ size }}
+              </option>
+            </select>
+          </div>
+          <div class="pagination-controls">
+            <button
+              class="pagination-button"
+              [disabled]="currentPage === 1"
+              (click)="previousPage()"
+              aria-label="Previous page"
+            >
+              ‹ Previous
+            </button>
+
+            <div class="page-numbers">
+              <button
+                *ngFor="let page of getPageNumbers()"
+                class="page-number"
+                [class.active]="page === currentPage"
+                (click)="goToPage(page)"
+              >
+                {{ page }}
+              </button>
+            </div>
+
+            <button
+              class="pagination-button"
+              [disabled]="currentPage === totalPages"
+              (click)="nextPage()"
+              aria-label="Next page"
+            >
+              Next ›
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Loading tickets...</p>
+    </div>
+  </main>
+</div>
+
