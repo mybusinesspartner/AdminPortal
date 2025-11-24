@@ -6,6 +6,8 @@ import { SupportTicketsComponent } from './components/support-tickets/support-ti
 import { SupportTicketDetailComponent } from './components/support-ticket-detail/support-ticket-detail.component';
 import { UserDetailComponent } from './components/user-detail/user-detail.component';
 import { ReportedUsersComponent } from './components/reported-users/reported-users.component';
+import { ContactUsComponent } from './components/contact-us/contact-us.component';
+import { DeletedUsersComponent } from './components/deleted-users/deleted-users.component';
 import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -16,6 +18,8 @@ export const routes: Routes = [
   { path: 'support-tickets', component: SupportTicketsComponent, canActivate: [AuthGuard] },
   { path: 'support-tickets/:id', component: SupportTicketDetailComponent, canActivate: [AuthGuard] },
   { path: 'reported-users', component: ReportedUsersComponent, canActivate: [AuthGuard] },
+  { path: 'contact-us', component: ContactUsComponent, canActivate: [AuthGuard] },
+  { path: 'deleted-users', component: DeletedUsersComponent, canActivate: [AuthGuard] },
   { path: 'user/:id', component: UserDetailComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '/login' }
 ];

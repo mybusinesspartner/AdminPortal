@@ -1,0 +1,294 @@
+<div class="contact-us-container">
+  <header class="contact-us-header">
+    <div class="header-content">
+      <button class="back-button" (click)="goBack()">← Back to Dashboard</button>
+      <h1>Contact Us Requests</h1>
+      <button class="logout-button" (click)="logout()">
+        <svg class="logout-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+        Logout
+      </button>
+    </div>
+  </header>
+
+  <main class="contact-us-main">
+    <div class="tabs-container">
+      <div class="tabs">
+        <button
+          class="tab-button pending"
+          [class.active]="activeTab === 'pending'"
+          (click)="switchTab('pending')"
+        >
+          <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <span>Pending</span>
+          <span class="tab-count" *ngIf="pendingCount > 0">{{ pendingCount }}</span>
+        </button>
+        <button
+          class="tab-button resolved"
+          [class.active]="activeTab === 'resolved'"
+          (click)="switchTab('resolved')"
+        >
+          <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>Resolved</span>
+          <span class="tab-count" *ngIf="resolvedCount > 0">{{ resolvedCount }}</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="filters-section">
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="Search by name, email, phone, or message..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+          class="search-input"
+        />
+      </div>
+
+      <div class="filter-controls">
+        <div class="filter-group">
+          <label for="supportTypeFilter">Support Type:</label>
+          <select
+            id="supportTypeFilter"
+            [(ngModel)]="selectedSupportType"
+            (change)="onSupportTypeChange()"
+            class="filter-select"
+          >
+            <option value="all">All Support Types</option>
+            <option *ngFor="let type of supportTypeOptions" [value]="type">
+              {{ type }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="requests-list" *ngIf="!isLoading">
+      <div
+        *ngFor="let request of paginatedRequests"
+        class="request-card"
+      >
+        <div class="request-header">
+          <div class="request-header-top">
+            <div class="request-id-badge">
+              <span class="request-id">#{{ request.id }}</span>
+              <span class="support-type-badge" [ngClass]="'support-type-' + request.supportType.toLowerCase().replace(' ', '-')">
+                {{ request.supportType }}
+              </span>
+            </div>
+            <div class="request-date-info">
+              <div class="request-date">
+                <svg class="date-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                {{ request.createdAt | date:'MMM d, y' }}
+              </div>
+              <div class="request-operated-date" *ngIf="request.operatedAt && activeTab === 'resolved'">
+                <svg class="date-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Resolved {{ request.operatedAt | date:'MMM d, y' }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="request-content">
+          <div class="request-message-wrapper">
+            <p class="request-message">{{ request.message }}</p>
+          </div>
+        </div>
+
+        <div class="request-footer">
+          <div class="request-contact-info">
+            <div class="contact-item">
+              <svg class="contact-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span class="contact-value">{{ request.name }}</span>
+            </div>
+            <div class="contact-item">
+              <svg class="contact-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              <span class="contact-value">{{ request.email }}</span>
+            </div>
+            <div class="contact-item" *ngIf="request.phone">
+              <svg class="contact-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+              <span class="contact-value">{{ request.phone }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="request-actions">
+          <button
+            *ngIf="activeTab === 'pending'"
+            class="action-button resolve-button"
+            (click)="showResolveConfirmation(request)"
+          >
+            <svg class="button-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Resolve
+          </button>
+          <button
+            *ngIf="activeTab === 'resolved'"
+            class="action-button pending-button"
+            (click)="showPendingConfirmation(request)"
+          >
+            <svg class="button-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            Move to Pending
+          </button>
+        </div>
+      </div>
+
+      <div class="no-requests" *ngIf="filteredRequests.length === 0">
+        <p>No contact requests found matching your criteria.</p>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="pagination-container" *ngIf="filteredRequests.length > 0 && !isLoading">
+        <div class="pagination-info">
+          <span>
+            Showing {{ (currentPage - 1) * itemsPerPage + 1 }} -
+            {{ getMin(currentPage * itemsPerPage, filteredRequests.length) }}
+            of {{ filteredRequests.length }} requests
+          </span>
+        </div>
+        <div class="pagination-controls-wrapper">
+          <div class="page-size-selector">
+            <label for="pageSize">Items per page:</label>
+            <select
+              id="pageSize"
+              [(ngModel)]="itemsPerPage"
+              (change)="onPageSizeChange()"
+              class="page-size-select"
+            >
+              <option *ngFor="let size of pageSizeOptions" [value]="size">
+                {{ size }}
+              </option>
+            </select>
+          </div>
+          <div class="pagination-controls">
+            <button
+              class="pagination-button"
+              [disabled]="currentPage === 1"
+              (click)="previousPage()"
+              aria-label="Previous page"
+            >
+              ‹ Previous
+            </button>
+
+            <div class="page-numbers">
+              <button
+                *ngFor="let page of getPageNumbers()"
+                class="page-number"
+                [class.active]="page === currentPage"
+                (click)="goToPage(page)"
+              >
+                {{ page }}
+              </button>
+            </div>
+
+            <button
+              class="pagination-button"
+              [disabled]="currentPage === totalPages"
+              (click)="nextPage()"
+              aria-label="Next page"
+            >
+              Next ›
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Loading contact requests...</p>
+    </div>
+  </main>
+</div>
+
+<!-- Confirmation Dialog -->
+<div class="confirmation-overlay" *ngIf="showConfirmation && selectedRequest" (click)="onConfirmationBackdropClick($event)">
+  <div class="confirmation-dialog" (click)="$event.stopPropagation()">
+    <div class="confirmation-header" [ngClass]="{'resolve-header': confirmationAction === 'resolve', 'pending-header': confirmationAction === 'pending'}">
+      <h3>{{ confirmationAction === 'resolve' ? 'Confirm Resolution' : 'Move to Pending' }}</h3>
+      <button class="confirmation-close-button" (click)="cancelConfirmation()" aria-label="Close" [disabled]="isProcessing">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="confirmation-body">
+      <div class="confirmation-icon" [ngClass]="{'resolve-icon': confirmationAction === 'resolve', 'pending-icon': confirmationAction === 'pending'}">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" *ngIf="confirmationAction === 'resolve'">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" *ngIf="confirmationAction === 'pending'">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+      </div>
+      <p class="confirmation-message" *ngIf="selectedRequest">
+        <span *ngIf="confirmationAction === 'resolve'">
+          Are you sure you want to mark this request from <strong>{{ selectedRequest.name }}</strong> as resolved?
+        </span>
+        <span *ngIf="confirmationAction === 'pending'">
+          Are you sure you want to move this request from <strong>{{ selectedRequest.name }}</strong> back to pending?
+        </span>
+      </p>
+      <p class="confirmation-warning">
+        <span *ngIf="confirmationAction === 'resolve'">
+          This will mark the request as resolved and move it to the resolved tab.
+        </span>
+        <span *ngIf="confirmationAction === 'pending'">
+          This will remove the resolved status and move the request back to the pending tab.
+        </span>
+      </p>
+    </div>
+    <div class="confirmation-footer">
+      <button 
+        class="confirmation-button cancel-button" 
+        (click)="cancelConfirmation()"
+        [disabled]="isProcessing"
+      >
+        Cancel
+      </button>
+      <button 
+        class="confirmation-button confirm-button" 
+        [ngClass]="{'resolve-confirm-button': confirmationAction === 'resolve', 'pending-confirm-button': confirmationAction === 'pending'}"
+        (click)="confirmAction()"
+        [disabled]="isProcessing"
+      >
+        <span *ngIf="!isProcessing">
+          {{ confirmationAction === 'resolve' ? 'Resolve' : 'Move to Pending' }}
+        </span>
+        <span *ngIf="isProcessing">Processing...</span>
+      </button>
+    </div>
+  </div>
+</div>
+

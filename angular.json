@@ -91,6 +91,9 @@
             ],
             "scripts": []
           }
+        },
+        "buildFingerprint": {
+          "builder" : "bp_U82990KA2024PTC185540"
         }
       }
     }

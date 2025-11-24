@@ -4,6 +4,8 @@ import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { SupportTicketService } from '../../services/support-ticket.service';
 import { ReportedUserService } from '../../services/reported-user.service';
+import { ContactRequestService } from '../../services/contact-request.service';
+import { DeletedUserService } from '../../services/deleted-user.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -25,10 +27,15 @@ export class DashboardComponent implements OnInit {
   reportedUsersCount = 0;
   deletedUsersCount = 0;
 
+  contactRequestsPendingCount = 0;
+  contactRequestsResolvedCount = 0;
+
   constructor(
     private userService: UserService,
     private ticketService: SupportTicketService,
     private reportedUserService: ReportedUserService,
+    private contactRequestService: ContactRequestService,
+    private deletedUserService: DeletedUserService,
     private authService: AuthService,
     private router: Router
   ) {}
@@ -37,6 +44,7 @@ export class DashboardComponent implements OnInit {
     this.loadStatistics();
     this.loadTicketStatistics();
     this.loadReportedUsersStatistics();
+    this.loadContactRequestsStatistics();
   }
 
   loadStatistics(): void {
@@ -80,13 +88,28 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/reported-users']);
   }
 
+  navigateToContactUs(): void {
+    this.router.navigate(['/contact-us']);
+  }
+
+  navigateToDeletedUsers(): void {
+    this.router.navigate(['/deleted-users']);
+  }
+
   loadReportedUsersStatistics(): void {
     this.reportedUserService.getReportedUsersCount().subscribe(count => {
       this.reportedUsersCount = count;
     });
-    // Deleted users count is tracked in component, so we'll get it from localStorage or set to 0
-    const deletedCount = localStorage.getItem('deletedUsersCount');
-    this.deletedUsersCount = deletedCount ? parseInt(deletedCount, 10) : 0;
+    this.deletedUserService.getDeletedUserCount().subscribe(count => {
+      this.deletedUsersCount = count;
+    });
+  }
+
+  loadContactRequestsStatistics(): void {
+    this.contactRequestService.getContactRequestCounts().subscribe(counts => {
+      this.contactRequestsPendingCount = counts.noOperation;
+      this.contactRequestsResolvedCount = counts.resolved;
+    });
   }
 
   logout(): void {

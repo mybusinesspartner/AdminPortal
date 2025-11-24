@@ -17,6 +17,8 @@ import { UserDetailComponent } from './components/user-detail/user-detail.compon
 import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
 import { ToastComponent } from './components/toast/toast.component';
 import { ReportedUsersComponent } from './components/reported-users/reported-users.component';
+import { ContactUsComponent } from './components/contact-us/contact-us.component';
+import { DeletedUsersComponent } from './components/deleted-users/deleted-users.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +32,9 @@ import { ReportedUsersComponent } from './components/reported-users/reported-use
     UserDetailComponent,
     DocumentViewerComponent,
     ToastComponent,
-    ReportedUsersComponent
+    ReportedUsersComponent,
+    ContactUsComponent,
+    DeletedUsersComponent
   ],
   imports: [
     BrowserModule,
